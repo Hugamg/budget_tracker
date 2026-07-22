@@ -6,40 +6,12 @@
     <title>Budget Tracker — Épargnes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="public/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="app-layout">
-
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
-        <div class="sidebar__brand">
-            <span class="brand-dot"></span>
-            <h1>Budget<br>Tracker</h1>
-        </div>
-
-        <nav class="sidebar__nav">
-            <a href="/?page=dashboard" class="nav-item">
-                <span class="nav-icon">◈</span> Tableau de bord
-            </a>
-            <a href="/?page=savings" class="nav-item nav-item--active">
-                <span class="nav-icon">◇</span> Épargnes
-            </a>
-            <a href="/?page=analytics" class="nav-item">
-                <span class="nav-icon">◆</span> Analyses
-            </a>
-        </nav>
-
-        <div class="sidebar__user">
-            <div class="user-avatar">JM</div>
-            <div class="user-info">
-                <span class="user-name">Jean Martin</span>
-                <a href="/?page=logout" class="user-logout">Déconnexion</a>
-            </div>
-        </div>
-    </aside>
 
     <!-- ===== MAIN ===== -->
     <main class="main">

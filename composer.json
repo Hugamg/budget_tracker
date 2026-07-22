@@ -2,6 +2,7 @@
     "require": {
         "nesbot/carbon": "^3.13",
         "symfony/dotenv": "^7.4",
-        "phpmailer/phpmailer": "^7.1"
+        "phpmailer/phpmailer": "^7.1",
+        "supabase/supabase-php": "^0.0.1"
     }
 }

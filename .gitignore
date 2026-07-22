@@ -2,9 +2,14 @@
 vendor/
 composer.lock
 
+# Supabase
+supabase/config.toml
+supabase/secrets.env
+
 # Environnement
 .env
 .env.local
+.env.*.local
 
 # OS
 .DS_Store
