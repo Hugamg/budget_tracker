@@ -269,6 +269,17 @@ h3,
     background: #FBF8F2;
 }
 
+.stat-card .btn {
+    margin-top: 14px;
+    width: 100%;
+    text-align: center;
+}
+
+.btn--small {
+    padding: 9px 14px;
+    font-size: .85rem;
+}
+
 .progress {
     margin-top: 12px;
     height: 10px;

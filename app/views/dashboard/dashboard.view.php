@@ -35,6 +35,7 @@
                 <div class="progress">
                     <div class="progress__bar" style="width:80%"></div>
                 </div>
+                <button class="btn btn--primary btn--small" id="openEditSalaryModal">Modifier vos informations du mois</button>
             </div>
 
             <div class="stat-card stat-card--savings">
@@ -240,6 +241,35 @@
     </div>
 </div>
 
+<!-- ===== MODAL : EDIT SALARY ===== -->
+<div class="modal-overlay" id="salaryModal">
+    <div class="modal">
+        <div class="modal__head">
+            <h3>Modifier votre salaire du mois</h3>
+            <button class="icon-btn" id="closeSalaryModal">✕</button>
+        </div>
+        <form class="form" id="salaryForm" method="POST" action="/budget/update">
+            <input type="hidden" name="id_users" value="Jean Martin">
+            <input type="hidden" name="month_" value="2026-07-01">
+
+            <div class="form__group">
+                <label>Salaire du mois (€)</label>
+                <input type="number" step="0.01" name="salary" id="salaryInput" placeholder="0,00" required>
+            </div>
+
+            <div class="form__group">
+                <label>Objectif d'épargne (€)</label>
+                <input type="number" step="0.01" name="savings_goals" id="savingsGoalsInput" placeholder="0,00" required>
+            </div>
+
+            <div class="form__actions">
+                <button type="button" class="btn btn--ghost" id="cancelSalaryModal">Annuler</button>
+                <button type="submit" class="btn btn--primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     // --- Chart.js (données de démonstration) ---
     const ctx = document.getElementById('expenseChart');
@@ -275,6 +305,12 @@
             chip.classList.add('chip--active');
         };
     });
+
+    // --- Modal Salaire ---
+    const salaryModal = document.getElementById('salaryModal');
+    document.getElementById('openEditSalaryModal').onclick = () => salaryModal.classList.add('is-open');
+    document.getElementById('closeSalaryModal').onclick = () => salaryModal.classList.remove('is-open');
+    document.getElementById('cancelSalaryModal').onclick = () => salaryModal.classList.remove('is-open');
 </script>
 
 </body>
