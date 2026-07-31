@@ -1,20 +1,21 @@
 <?php
-function nav_item(string $page, string $title, string $icon): string {
 
-    // 1. On récupère la page actuelle depuis l'URL
-    //    Si $_GET['page'] n'existe pas, on met une valeur par défaut ('dashboard' par exemple)
-    $current_page = $_GET['page'] ?? 'dashboard';
+// On détecte la section active une seule fois
+$request_uri  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$request_uri  = trim($request_uri, '/');
+$active_folder = explode('/', $request_uri)[0] ?: 'dashboard';
 
-    // 2. On compare la page actuelle avec celle du lien qu'on génère
+function nav_item(string $route, string $title, string $icon): string {
+    global $active_folder;
+    
     $class = 'nav-item';
-    if ($current_page === $page){
-        $class = 'nav-item--active';
+    if ($active_folder === $route) {
+        $class .= ' nav-item--active';
     }
-
-    // 3. On retourne le HTML du lien (rôle UNIQUE de cette fonction)
+    
     return <<<HTML
-        <a href="{$page}" class="{$class}">
-            <i class="{$icon}"></i>
+        <a href="/{$route}" class="{$class}">
+            <span class="nav-icon">{$icon}</span>
             <span>{$title}</span>
         </a>
 HTML;
@@ -23,28 +24,18 @@ HTML;
 ?>
 
 <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
-        <!-- Dans la sidebar, remplace les href -->
-        <nav class="sidebar__nav">
-            <a href="/?page=dashboard" class="nav-item<?php echo $_SERVER['REQUEST_URI'] === '/?page=dashboard' ? ' nav-item--active' : ''; ?>">
-                <span class="nav-icon">◈</span> Tableau de bord
-            </a>
-            <a href="/?page=savings" class="nav-item<?php echo $_SERVER['REQUEST_URI'] === '/?page=savings' ? ' nav-item--active' : ''; ?>">
-                <span class="nav-icon">◇</span> Épargnes
-            </a>
-            <a href="/?page=analytics" class="nav-item<?php echo $_SERVER['REQUEST_URI'] === '/?page=analytics' ? ' nav-item--active' : ''; ?>">
-                <span class="nav-icon">◆</span> Analyses
-            </a>
-        </nav>
+<aside class="sidebar">
+    <nav class="sidebar__nav">
+        <?= nav_item('dashboard', 'Tableau de bord', '◈') ?>
+        <?= nav_item('savings', 'Épargnes', '◇') ?>
+        <?= nav_item('analytics', 'Analyses', '◆') ?>
+    </nav>
 
-        <!-- Dans sidebar__user, change le logout -->
-        <div class="sidebar__user">
-            <div class="user-avatar">JM</div>
-            <div class="user-info">
-                <span class="user-name">Jean Martin</span>
-                <a href="/?page=logout" class="user-logout">Déconnexion</a>
-            </div>
+    <div class="sidebar__user">
+        <div class="user-avatar">JM</div>
+        <div class="user-info">
+            <span class="user-name">Jean Martin</span>
+            <a href="/logout" class="user-logout">Déconnexion</a>
         </div>
-    </aside>
-
-
+    </div>
+</aside>
