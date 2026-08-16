@@ -57,10 +57,10 @@ class SavingRepositery{
         $stmt =$this->db->prepare("SELECT a.id, a.amout, a.action_date, c.name, a.type as saving_deposits
         FROM actions AS a 
         INNER JOIN users AS u ON a.id_users = u.id
-        INNER JOIN categories AS c ON a.id_categories = c.id_categories
+        INNER JOIN categories AS c ON a.id_categories = c.id
         WHERE u.id = :user_id
         AND a.type ='epargnes_versement'
-        ORDER BY a.action_date DESC");
+        ORDER BY a.action_date DESC LIMIT 5");
         
         $stmt->execute([
             'user_id' => $userId,
@@ -74,10 +74,10 @@ class SavingRepositery{
         $stmt =$this->db->prepare("SELECT a.id, a.amout, a.action_date, c.name, a.type as saving_deposits
         FROM actions AS a 
         INNER JOIN users AS u ON a.id_users = u.id
-        INNER JOIN categories AS c ON a.id_categories = c.id_categories
+        INNER JOIN categories AS c ON a.id_categories = c.id
         WHERE u.id = :user_id
         AND a.type ='retrait_epargnes'
-        ORDER BY a.action_date DESC");
+        ORDER BY a.action_date DESC LIMIT 5");
         
         $stmt->execute([
             'user_id' => $userId,

@@ -99,7 +99,7 @@ class DashboardRepositery {
         $stmt =$this->db->prepare("SELECT SUM(a.amout) AS total_expense
         FROM actions AS a 
         INNER JOIN users AS u ON a.id_users = u.id
-        INNER JOIN categories AS c ON a.id_categories = c.id_categories
+        INNER JOIN categories AS c ON a.id_categories = c.id
         WHERE u.id = :user_id
         AND a.type ='depense'
         AND c.id = :id_categories
