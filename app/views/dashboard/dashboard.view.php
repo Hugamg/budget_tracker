@@ -20,8 +20,8 @@
         <!-- Topbar -->
         <header class="topbar">
             <div>
-                <p class="topbar__label">Juillet 2026</p>
-                <h2 class="topbar__title">Bonjour, Jean 👋</h2>
+                <p class="topbar__label"><?= date('F Y'); ?></p>
+                <h class="topbar__title">Bonjour, </h2>
             </div>  
             <button class="btn btn--primary" id="openAddModal">+ Nouvelle dépense</button>
         </header>
@@ -64,7 +64,7 @@
             <div class="panel">
                 <div class="panel__head">
                     <h3>Répartition des dépenses</h3>
-                    <span class="badge">Juillet 2026</span>
+                    <span class="badge"><?= date('F Y'); ?></span>
                 </div>
                 <div class="chart-wrap">
                     <canvas id="expenseChart"></canvas>
