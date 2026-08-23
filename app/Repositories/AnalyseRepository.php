@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Repositeries;
+namespace App\Repositories;
 
 
 use PDO;
 use DateTimeImmutable;
 
-class AnalyseRepositery {
+class AnalyseRepository {
     private PDO $db;
     
     public function __construct(PDO $db) {
@@ -78,7 +78,7 @@ public function getTopExpenseBetweenDates(int $userId, DateTimeImmutable $firstD
     : 0;
 } 
 
-public function getTop5ExpenseBetweenDates($userId, DateTimeImmutable $firstDate, DateTimeImmutable $secondDate): ?array {
+public function getTop5ExpenseBetweenDates(int $userId, DateTimeImmutable $firstDate, DateTimeImmutable $secondDate): ?array {
     $stmt = $this->db->prepare("SELECT a.libelle, a.amount
         FROM actions AS a
         INNER JOIN users AS u ON a.user_id = u.id

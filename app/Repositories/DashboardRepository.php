@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositeries;
+namespace App\Repositories;
 
 use App\Models\Action;
 use App\Models\Category;
@@ -8,7 +8,7 @@ use App\Models\MonthlyBudget;
 use PDO;
 use DateTimeImmutable;
 
-class DashboardRepositery {
+class DashboardRepository {
     private PDO $db;
 
     public function __construct(PDO $db) {
@@ -226,7 +226,7 @@ class DashboardRepositery {
      * @return Category[]
      */
     public function getAllCategories(): array {
-        $stmt = $this->db->query("SELECT id, nom FROM categories ORDER BY nom ASC");
+        $stmt = $this->db->query("SELECT id, nom, color FROM categories ORDER BY nom ASC");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map(fn(array $row) => new Category(

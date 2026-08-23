@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositeries;
+namespace App\Repositories;
 
 use App\Models\User;
 use PDO;
 
-class UserRepositery
+class UserRepository
 {
     private PDO $pdo;
 
@@ -52,6 +52,31 @@ class UserRepositery
         }
 
         return $this->hydrate($row);
+    }
+
+    public function register(string $surname, string $mail, string $firstName, string $password): void
+    {
+        $sql = "INSERT INTO users (surname, mail, first_name, password) VALUES (:surname, :mail, :first_name, :password)";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':surname', $surname, PDO::PARAM_STR);
+        $stmt->bindValue(':mail', $mail, PDO::PARAM_STR);
+        $stmt->bindValue(':first_name', $firstName, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+    
+    public function isExists(string $mail): bool
+    {
+        $sql = "SELECT * FROM users WHERE mail = :mail LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':mail', $mail, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row !== false;
     }
 
     /**

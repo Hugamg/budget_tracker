@@ -1,29 +1,32 @@
 <?php
 namespace App\Controllers;
 
-use App\Repositeries\DashboardRepositery;
+use App\Repositories\DashboardRepository;
+use App\Repositories\UserRepository;
 use PDO;
-use DateTimeImmutable;
+
 
 class DashboardController {
     
-    private DashboardRepositery $dashboardRepo;
+    private DashboardRepository $dashboardRepo; 
+    private UserRepository $userRepositery;
 
     public function __construct(PDO $db) {
-        $this->dashboardRepo = new DashboardRepositery($db);
+        $this->dashboardRepo = new DashboardRepository($db);
+        $this->userRepositery = new UserRepository($db);  
     }
 
-    public function index(int $userId): void {
-
-        session_start();
+    public function index(int $userId): ?array {
         
         // Sécurité : redirige si pas connecté
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
-        }
-
-        $userId = (int) $_SESSION['user_id'];
+        // if (!isset($_SESSION['user_id'])) {
+        //     header('Location: /dashboard.view.php');
+        //     exit;
+        // }
+        
+        // Récupérer l'utilisateur
+        $user = $this->userRepositery->findById($userId);
+        
         // ici on va construire les données
         // 1. Récupérer le budget du mois
         $budget = $this->dashboardRepo->getMonthlyBudgetNow($userId);
@@ -49,8 +52,17 @@ class DashboardController {
         // 7. Récupérer la liste des dépenses (tableau du bas)
         $expenses = $this->dashboardRepo->getAllExpenses($userId);
         
-        // 8. Charger la vue avec toutes ces variables
-        require __DIR__ . '/../views/dashboard/dashboard.view.php';
+        // 8. Retourner les données
+        return [
+            'user' => $user,
+            'budget' => $budget,
+            'totalExpenses' => $totalExpenses,
+            'remainingBalance' => $remainingBalance,
+            'savings' => $savings,
+            'allCategories' => $allCategories,
+            'totalExpensesByCategory' => $totalExpensesByCategory,
+            'expenses' => $expenses
+        ];
     }
 }
 

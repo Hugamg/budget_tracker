@@ -4,5 +4,11 @@
         "symfony/dotenv": "^7.4",
         "phpmailer/phpmailer": "^7.1",
         "supabase/supabase-php": "^0.0.1"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Repositeries;
+namespace App\Repositories;
 
 use PDO;
 use DateTimeImmutable;
 
 
-class SavingRepositery{
+class SavingRepositery {
     private PDO $db;
     
     public function __construct(PDO $db) {

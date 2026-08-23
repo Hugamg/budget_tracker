@@ -21,7 +21,7 @@
         <header class="topbar">
             <div>
                 <p class="topbar__label"><?= date('F Y'); ?></p>
-                <h class="topbar__title">Bonjour, </h2>
+                <h2 class="topbar__title">Bonjour, <?= isset($user) && $user !== null ? htmlspecialchars($user->getFirstName()) : 'Utilisateur' ?></h2>
             </div>  
             <button class="btn btn--primary" id="openAddModal">+ Nouvelle dépense</button>
         </header>
