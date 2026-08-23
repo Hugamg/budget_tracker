@@ -15,6 +15,24 @@ class DashboardRepository {
         $this->db = $db;
     }
 
+    public function getTotalSavings(int $userId): float {
+        $stmt = $this->db->prepare("SELECT 
+            SUM(CASE WHEN type = 'epargne_versement' THEN amount ELSE 0 END) 
+            - 
+            SUM(CASE WHEN type = 'epargne_retrait' THEN amount ELSE 0 END) 
+            AS total_epargne
+         FROM actions
+         WHERE id_users = :user_id");
+            
+        $stmt->execute([
+            'user_id' => $userId
+        ]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $row ? (float) $row['total_epargne'] : 0.0;
+    }
+
     /**
      * Récupère le budget mensuel complet (salaire + objectif épargne) du mois en cours
      */

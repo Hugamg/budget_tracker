@@ -30,8 +30,8 @@
         <section class="stats-grid">
             <div class="stat-card stat-card--balance">
                 <p class="stat-card__label">Solde restant</p>
-                <p class="stat-card__value">1 320,00 €</p>
-                <p class="stat-card__hint">sur 1 650,00 € de paye</p>
+                <p class="stat-card__value"><?=  isset($remainingBalance) && $remainingBalance != null ? $remainingBalance : 0 ?> €</p>
+                <p class="stat-card__hint">sur <?= isset($budget) && $budget != null ? $budget->getSalary() : 0 ?> € de paye</p>
                 <div class="progress">
                     <div class="progress__bar" style="width:80%"></div>
                 </div>
@@ -40,19 +40,19 @@
 
             <div class="stat-card stat-card--savings">
                 <p class="stat-card__label">Épargne du mois</p>
-                <p class="stat-card__value">150,00 €</p>
+                <p class="stat-card__value"><?= isset($monthSavings) && $monthSavings != null ? $monthSavings : 0 ?> €</p>
                 <p class="stat-card__hint">Objectif atteint ✓</p>
             </div>
 
             <div class="stat-card stat-card--spent">
                 <p class="stat-card__label">Dépensé ce mois</p>
-                <p class="stat-card__value">330,00 €</p>
-                <p class="stat-card__hint">22 % de la paye</p>
+                <p class="stat-card__value"><?= isset($totalExpenses) && $totalExpenses != null ? $totalExpenses : 0 ?> €</p>
+                <p class="stat-card__hint"><?= isset($budget) && $budget != null && $budget->getSalary() != 0 && isset($totalExpenses) && $totalExpenses != null ? round(($totalExpenses / $budget->getSalary()) * 100, 1) : 0 ?> % de la paye</p>
             </div>
 
             <div class="stat-card stat-card--alert">
                 <p class="stat-card__label">État épargne</p>
-                <p class="stat-card__value">Intacte</p>
+                <p class="stat-card__value"><?= isset($totalSavings) && $totalSavings != null ? $totalSavings : 0 ?> €</p>
                 <p class="stat-card__hint">Aucun retrait ce mois</p>
             </div>
         </section>

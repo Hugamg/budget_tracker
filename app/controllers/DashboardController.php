@@ -38,7 +38,9 @@ class DashboardController {
         $remainingBalance = $budget !== null ? $budget->getSalary() - $totalExpenses : -$totalExpenses;
         
         // 4. Récupérer l'épargne du mois
-        $savings = $this->dashboardRepo->getMonthlyAmountSaving($userId);
+        $monthSavings = $this->dashboardRepo->getMonthlyAmountSaving($userId);
+
+        $totalSavings = $this->dashboardRepo->getTotalSavings($userId);
         
         // 5. Récupérer toutes les catégories
         $allCategories = $this->dashboardRepo->getAllCategories();
@@ -58,13 +60,12 @@ class DashboardController {
             'budget' => $budget,
             'totalExpenses' => $totalExpenses,
             'remainingBalance' => $remainingBalance,
-            'savings' => $savings,
+            'monthSavings' => $monthSavings,
+            'totalSavings' => $totalSavings,
             'allCategories' => $allCategories,
             'totalExpensesByCategory' => $totalExpensesByCategory,
             'expenses' => $expenses
         ];
     }
+
 }
-
-
-

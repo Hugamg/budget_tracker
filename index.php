@@ -87,7 +87,7 @@ switch ($folder) {
 
     default:
         $controller = new DashboardController($pdo);
-        $controller->index($userId);
+        $data = $controller->index($userId);
         break;
 }
 
