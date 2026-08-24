@@ -41,7 +41,21 @@
             <div class="stat-card stat-card--savings">
                 <p class="stat-card__label">Épargne du mois</p>
                 <p class="stat-card__value"><?= isset($monthSavings) && $monthSavings != null ? $monthSavings : 0 ?> €</p>
-                <p class="stat-card__hint">Objectif atteint ✓</p>
+                <p class="stat-card__hint">
+                    <?php 
+                    switch(true) {
+                        case isset($monthSavings) && $monthSavings == null:
+                            echo "Aucune valeur n'as encore été enregistrée";
+                            break;
+                        case isset($monthSavings) && isset($budget) && $budget != null && $monthSavings < $budget->getSavingsGoals():
+                            echo "Reste " . "<b>" . (isset($budget) && $budget != null ? ($budget->getSavingsGoals() - $monthSavings) : 0) . "</b>" . " € à épargner";
+                            break;
+                        default:
+                            echo "Objectif atteint ✔";
+                            break;
+                    }
+                    ?>
+                </p>
             </div>
 
             <div class="stat-card stat-card--spent">
@@ -52,7 +66,7 @@
 
             <div class="stat-card stat-card--alert">
                 <p class="stat-card__label">État épargne</p>
-                <p class="stat-card__value"><?= isset($totalSavings) && $totalSavings != null ? $totalSavings : 0 ?> €</p>
+                <p class="stat-card__value"><?= isset($totalSavings ) ?></p>
                 <p class="stat-card__hint">Aucun retrait ce mois</p>
             </div>
         </section>
