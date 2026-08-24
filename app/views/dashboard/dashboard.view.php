@@ -66,8 +66,8 @@
 
             <div class="stat-card stat-card--alert">
                 <p class="stat-card__label">État épargne</p>
-                <p class="stat-card__value"><?= isset($totalSavings ) ?></p>
-                <p class="stat-card__hint">Aucun retrait ce mois</p>
+                <p class="stat-card__value"><?= isset($totalSavings) && $totalSavings == null ? "Aucune épargne présente" : number_format($totalSavings ?? 0, 2, ',', ' ') . " €" ?></p>
+                <!-- <p class="stat-card__hint">Aucun retrait ce mois</p> -->
             </div>
         </section>
 
