@@ -16,7 +16,9 @@ class Action
         private string $type,
         private ?int $idCategories,
         private int $idUsers,
-        private string $libelle
+        private string $libelle,
+        private ?string $categoryName = null,
+        private ?string $categoryColor = null
     ) {}
 
     public function getId(): int
@@ -66,10 +68,6 @@ class Action
         return $this->type === self::TYPE_EPARGNE_RETRAIT;
     }
 
-    public function getIdCategories(): ?int
-    {
-        return $this->idCategories;
-    }
 
     public function getIdUsers(): int
     {
@@ -79,5 +77,13 @@ class Action
     public function getLibelle(): string
     {
         return $this->libelle;
+    }
+
+    public function getCategoryName(): ?string {
+        return $this->categoryName;
+    }
+
+    public function getCategoryColor(): ?string {
+        return $this->categoryColor;
     }
 }

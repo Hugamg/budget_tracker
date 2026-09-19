@@ -13,7 +13,6 @@
 
 <div class="app-layout">
 
-
     <!-- ===== MAIN ===== -->
     <main class="main">
 
@@ -21,29 +20,40 @@
         <header class="topbar">
             <div>
                 <p class="topbar__label"><?= date('F Y'); ?></p>
-                <h2 class="topbar__title">Bonjour, <?= isset($user) && $user !== null ? htmlspecialchars($user->getFirstName()) : 'Utilisateur' ?></h2>
-            </div>  
+                <h2 class="topbar__title">
+                    Bonjour, <?= isset($user) && $user !== null ? htmlspecialchars($user->getFirstName()) : 'Utilisateur' ?>
+                </h2>
+            </div>
             <button class="btn btn--primary" id="openAddModal">+ Nouvelle dépense</button>
         </header>
 
         <!-- ===== STAT CARDS ===== -->
         <section class="stats-grid">
+
             <div class="stat-card stat-card--balance">
                 <p class="stat-card__label">Solde restant</p>
-                <p class="stat-card__value"><?=  isset($remainingBalance) && $remainingBalance != null ? $remainingBalance : 0 ?> €</p>
-                <p class="stat-card__hint">sur <?= isset($budget) && $budget != null ? $budget->getSalary() : 0 ?> € de paye</p>
+                <p class="stat-card__value">
+                    <?= isset($remainingBalance) && $remainingBalance != null ? $remainingBalance : 0 ?> €
+                </p>
+                <p class="stat-card__hint">
+                    sur <?= isset($budget) && $budget != null ? $budget->getSalary() : 0 ?> € de paye
+                </p>
                 <div class="progress">
                     <div class="progress__bar" style="width:80%"></div>
                 </div>
-                <button class="btn btn--primary btn--small" id="openEditSalaryModal">Modifier vos informations du mois</button>
+                <button class="btn btn--primary btn--small" id="openEditSalaryModal">
+                    Modifier vos informations du mois
+                </button>
             </div>
 
             <div class="stat-card stat-card--savings">
                 <p class="stat-card__label">Épargne du mois</p>
-                <p class="stat-card__value"><?= isset($monthSavings) && $monthSavings != null ? $monthSavings : 0 ?> €</p>
+                <p class="stat-card__value">
+                    <?= isset($monthSavings) && $monthSavings != null ? $monthSavings : 0 ?> €
+                </p>
                 <p class="stat-card__hint">
-                    <?php 
-                    switch(true) {
+                    <?php
+                    switch (true) {
                         case isset($monthSavings) && $monthSavings == null:
                             echo "Aucune valeur n'as encore été enregistrée";
                             break;
@@ -60,15 +70,25 @@
 
             <div class="stat-card stat-card--spent">
                 <p class="stat-card__label">Dépensé ce mois</p>
-                <p class="stat-card__value"><?= isset($totalExpenses) && $totalExpenses != null ? $totalExpenses : 0 ?> €</p>
-                <p class="stat-card__hint"><?= isset($budget) && $budget != null && $budget->getSalary() != 0 && isset($totalExpenses) && $totalExpenses != null ? round(($totalExpenses / $budget->getSalary()) * 100, 1) : 0 ?> % de la paye</p>
+                <p class="stat-card__value">
+                    <?= isset($totalExpenses) && $totalExpenses != null ? $totalExpenses : 0 ?> €
+                </p>
+                <p class="stat-card__hint">
+                    <?= isset($budget) && $budget != null && $budget->getSalary() != 0 && isset($totalExpenses) && $totalExpenses != null
+                        ? round(($totalExpenses / $budget->getSalary()) * 100, 1)
+                        : 0 ?> % de la paye
+                </p>
             </div>
 
             <div class="stat-card stat-card--alert">
                 <p class="stat-card__label">État épargne</p>
-                <p class="stat-card__value"><?= isset($totalSavings) && $totalSavings == null ? "Aucune épargne présente" : number_format($totalSavings ?? 0, 2, ',', ' ') . " €" ?></p>
-                <!-- <p class="stat-card__hint">Aucun retrait ce mois</p> -->
+                <p class="stat-card__value">
+                    <?= isset($totalSavings) && $totalSavings == null
+                        ? "Aucune épargne présente"
+                        : number_format($totalSavings ?? 0, 2, ',', ' ') . " €" ?>
+                </p>
             </div>
+
         </section>
 
         <!-- ===== MIDDLE : CHART + BREAKDOWN ===== -->
@@ -93,56 +113,63 @@
                 <ul class="breakdown">
                     <li class="breakdown__item">
                         <span class="cat-tag cat--alimentation"></span>
-                        <span class="breakdown__name">Alimentation</span>
-                        <span class="breakdown__pct">38 %</span>
-                        <span class="breakdown__amount">125,40 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[0]) ? $allCategories[0]->getName() : 'Alimentation' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[1]) ? round(($totalExpensesByCategory[1] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[1]) ? number_format($totalExpensesByCategory[1], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                     <li class="breakdown__item">
                         <span class="cat-tag cat--transports"></span>
-                        <span class="breakdown__name">Transports</span>
-                        <span class="breakdown__pct">18 %</span>
-                        <span class="breakdown__amount">59,00 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[1]) ? $allCategories[1]->getName() : 'Logements' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[3]) ? round(($totalExpensesByCategory[3] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[3]) ? number_format($totalExpensesByCategory[3], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                     <li class="breakdown__item">
                         <span class="cat-tag cat--logements"></span>
-                        <span class="breakdown__name">Logements</span>
-                        <span class="breakdown__pct">15 %</span>
-                        <span class="breakdown__amount">49,00 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[2]) ? $allCategories[2]->getName() : 'Loisirs et Sorties' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[6]) ? round(($totalExpensesByCategory[6] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[6]) ? number_format($totalExpensesByCategory[6], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                     <li class="breakdown__item">
                         <span class="cat-tag cat--sante"></span>
-                        <span class="breakdown__name">Santé</span>
-                        <span class="breakdown__pct">12 %</span>
-                        <span class="breakdown__amount">40,00 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[3]) ? $allCategories[3]->getName() : 'Santé' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[4]) ? round(($totalExpensesByCategory[4] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[4]) ? number_format($totalExpensesByCategory[4], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                     <li class="breakdown__item">
                         <span class="cat-tag cat--soins"></span>
-                        <span class="breakdown__name">Soins et Hygiène</span>
-                        <span class="breakdown__pct">10 %</span>
-                        <span class="breakdown__amount">33,00 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[4]) ? $allCategories[4]->getName() : 'Soins et Hygiène' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[5]) ? round(($totalExpensesByCategory[5] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[5]) ? number_format($totalExpensesByCategory[5], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                     <li class="breakdown__item">
                         <span class="cat-tag cat--loisirs"></span>
-                        <span class="breakdown__name">Loisirs et Sortie</span>
-                        <span class="breakdown__pct">7 %</span>
-                        <span class="breakdown__amount">23,60 €</span>
+                        <span class="breakdown__name"><?= isset($allCategories[5]) ? $allCategories[5]->getName() : 'Transports' ?></span>
+                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[2]) ? round(($totalExpensesByCategory[2] / $totalExpenses) * 100, 1) : 0 ?> %</span>
+                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[2]) ? number_format($totalExpensesByCategory[2], 2, ',', ' ') . " €" : "0,00 €" ?></span>
                     </li>
                 </ul>
             </div>
+
         </section>
 
         <!-- ===== EXPENSE LIST ===== -->
         <section class="panel">
+
             <div class="panel__head panel__head--filters">
                 <h3>Dépenses du mois</h3>
                 <div class="filters">
-                    <button class="chip chip--active" data-cat="all">Toutes</button>
-                    <button class="chip" data-cat="alimentation">Alimentation</button>
-                    <button class="chip" data-cat="transports">Transports</button>
-                    <button class="chip" data-cat="sante">Santé</button>
-                    <button class="chip" data-cat="logements">Logements</button>
-                    <button class="chip" data-cat="soins">Soins et Hygiène</button>
-                    <button class="chip" data-cat="loisirs">Loisirs et Sortie</button>
+                    <button class="chip chip--active" style="background-color: var(--bg);" data-cat="all">
+                        Toutes
+                    </button>
+                    <?php foreach ($allCategories as $category): ?>
+                        <button
+                            class="chip"
+                            style="background-color: <?= htmlspecialchars($category->getColor()) ?>;"
+                            data-cat="<?= $category->getId() ?>"
+                        >
+                            <?= htmlspecialchars($category->getName()) ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
             </div>
 
@@ -156,70 +183,108 @@
                         <th class="col-actions">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>08/07/2026</td>
-                        <td>Courses Carrefour</td>
-                        <td><span class="pill cat--alimentation">Alimentation</span></td>
-                        <td class="amount">54,20 €</td>
-                        <td class="col-actions">
-                            <button class="icon-btn" title="Modifier">✎</button>
-                            <button class="icon-btn icon-btn--danger" title="Supprimer">✕</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>07/07/2026</td>
-                        <td>Ticket de métro</td>
-                        <td><span class="pill cat--transports">Transports</span></td>
-                        <td class="amount">16,90 €</td>
-                        <td class="col-actions">
-                            <button class="icon-btn" title="Modifier">✎</button>
-                            <button class="icon-btn icon-btn--danger" title="Supprimer">✕</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>05/07/2026</td>
-                        <td>Pharmacie</td>
-                        <td><span class="pill cat--sante">Santé</span></td>
-                        <td class="amount">23,00 €</td>
-                        <td class="col-actions">
-                            <button class="icon-btn" title="Modifier">✎</button>
-                            <button class="icon-btn icon-btn--danger" title="Supprimer">✕</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>03/07/2026</td>
-                        <td>Cinéma</td>
-                        <td><span class="pill cat--loisirs">Loisirs et Sortie</span></td>
-                        <td class="amount">12,50 €</td>
-                        <td class="col-actions">
-                            <button class="icon-btn" title="Modifier">✎</button>
-                            <button class="icon-btn icon-btn--danger" title="Supprimer">✕</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>02/07/2026</td>
-                        <td>Gel douche & shampoing</td>
-                        <td><span class="pill cat--soins">Soins et Hygiène</span></td>
-                        <td class="amount">18,30 €</td>
-                        <td class="col-actions">
-                            <button class="icon-btn" title="Modifier">✎</button>
-                            <button class="icon-btn icon-btn--danger" title="Supprimer">✕</button>
-                        </td>
-                    </tr>
+
+                <!-- Bloc "Toutes les dépenses" -->
+                <tbody class="cat-group" data-cat="all">
+                    <?php if (isset($expenses) && !empty($expenses)): ?>
+                        <?php foreach ($expenses as $expense): ?>
+                            <tr>
+                                <td><?= $expense->getFormattedDate() ?></td>
+                                <td><?= htmlspecialchars($expense->getLibelle()) ?></td>
+                                <td>
+                                    <span style="background-color: <?= $expense->getCategoryColor() ?>;" class="pill cat--<?= strtolower(str_replace(' ', '-', $expense->getCategoryName())) ?>">
+                                        <?= htmlspecialchars($expense->getCategoryName()) ?>
+                                    </span>
+                                </td>
+                                <td class="amount"><?= number_format($expense->getAmount(), 2, ',', ' ') ?> €</td>
+                                <td class="col-actions">
+                                    <button class="icon-btn icon-btn--edit" title="Modifier" data-id="<?= $expense->getId()?>" data-libelle="<?= $expense->getLibelle() ?>" data-amount="<?= $expense->getAmount() ?>" data-date="<?= $expense->getActionDate() ?>" data-category="<?= $expense->getIdCategories()?>">✎</button>
+                                    <form method="POST" action="/expense/delete" style="display:inline;" onsubmit="return confirm('Supprimer cette dépense ?');">
+                                        <input type="hidden" name="id" value="<?= $expense->getId() ?>">
+                                        <button type="submit" class="icon-btn icon-btn--delete" title="Supprimer">✕</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5">Aucune dépense enregistrée ce mois-ci.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
+
+                <!-- Un bloc par catégorie -->
+                <?php foreach ($allCategories as $category): ?>
+                    <?php $catExpenses = $expensesByCategory[$category->getId()] ?? []; ?>
+                    <tbody class="cat-group" data-cat="<?= $category->getId() ?>" style="display:none;">
+                        <?php if (!empty($catExpenses)): ?>
+                            <?php foreach ($catExpenses as $expense): ?>
+                                <tr>
+                                    <td><?= $expense->getFormattedDate() ?></td>
+                                    <td><?= htmlspecialchars($expense->getLibelle()) ?></td>
+                                    <td>
+                                        <span style="background-color: <?= htmlspecialchars($category->getColor()) ?>;" class="pill cat--<?= strtolower(str_replace(' ', '-', $expense->getCategoryName())) ?>">
+                                            <?= htmlspecialchars($expense->getCategoryName()) ?>
+                                        </span>
+                                    </td>
+                                    <td class="amount"><?= number_format($expense->getAmount(), 2, ',', ' ') ?> €</td>
+                                    <td class="col-actions">
+                                        <button class="icon-btn icon-btn--edit" title="Modifier" data-id="<?= $expense->getId() ?>" data-libelle="<?= $expense->getLibelle() ?>" data-amount="<?= $expense->getAmount() ?>" data-date="<?= $expense->getActionDate() ?>" data-category="<?= $expense->getIdCategories() ?>">✎</button>
+                                        <form method="POST" action="/expense/delete" style="display:inline;" onsubmit="return confirm('Supprimer cette dépense ?');">
+                                            <input type="hidden" name="id" value="<?= $expense->getId() ?>">
+                                            <button type="submit" class="icon-btn icon-btn--delete" title="Supprimer">✕</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5">Aucune dépense dans cette catégorie ce mois-ci.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                <?php endforeach; ?>
+
             </table>
+
         </section>
 
     </main>
 </div>
 
-<!-- ===== MODAL : ADD / EDIT EXPENSE ===== -->
-<div class="modal-overlay" id="expenseModal">
+<!-- ===== MODAL : EDIT SALARY ===== -->
+<div class="modal-overlay" id="salaryModal">
+    <div class="modal">
+        <div class="modal__head">
+            <h3>Modifier votre salaire du mois</h3>
+            <button class="icon-btn" id="closeSalaryModal">✕</button>
+        </div>
+        <form class="form" id="salaryForm" method="POST" action="/budget/update">
+
+            <div class="form__group">
+                <label>Salaire du mois (€)</label>
+                <input type="number" step="0.01" name="salary" id="salaryInput" placeholder="0,00" required>
+            </div>
+
+            <div class="form__group">
+                <label>Objectif d'épargne (€)</label>
+                <input type="number" step="0.01" name="savings_goals" id="savingsGoalsInput" placeholder="0,00" required>
+            </div>
+
+            <div class="form__actions">
+                <button type="button" class="btn btn--ghost" id="cancelSalaryModal">Annuler</button>
+                <button type="add-salary-submit" class="btn btn--primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL : ADD EXPENSE ===== -->
+<div class="modal-overlay" id="addExpenseModal">
     <div class="modal">
         <div class="modal__head">
             <h3>Nouvelle dépense</h3>
-            <button class="icon-btn" id="closeAddModal">✕</button>
+            <button class="icon-btn" id="closeAddExpenseModal">✕</button>
         </div>
         <form class="form">
             <div class="form__group">
@@ -248,84 +313,64 @@
                 </select>
             </div>
             <div class="form__actions">
-                <button type="button" class="btn btn--ghost" id="cancelModal">Annuler</button>
-                <button type="submit" class="btn btn--primary">Enregistrer</button>
+                <button type="button" class="btn btn--ghost" id="cancelAddExpenseModal">Annuler</button>
+                <button type="add-expense-submit" class="btn btn--primary">Enregistrer</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ===== MODAL : EDIT SALARY ===== -->
-<div class="modal-overlay" id="salaryModal">
+
+<!-- ===== MODAL : EDIT EXPENSE ===== -->                            
+<div class="modal-overlay" id="editExpenseModal">
     <div class="modal">
         <div class="modal__head">
-            <h3>Modifier votre salaire du mois</h3>
-            <button class="icon-btn" id="closeSalaryModal">✕</button>
+            <h3>Modifier la dépense</h3>
+            <button class="icon-btn" id="closeEditExpenseModal">✕</button>
         </div>
-        <form class="form" id="salaryForm" method="POST" action="/budget/update">
-            <input type="hidden" name="id_users" value="Jean Martin">
-            <input type="hidden" name="month_" value="2026-07-01">
+        <form class="form" id="editExpenseForm">
+            <input type="hidden" id="editExpenseId" name="id">
 
             <div class="form__group">
-                <label>Salaire du mois (€)</label>
-                <input type="number" step="0.01" name="salary" id="salaryInput" placeholder="0,00" required>
+                <label>Libellé</label>
+                <input type="text" id="editLibelle" name="libelle">
             </div>
-
+            <div class="form__row">
+                <div class="form__group">
+                    <label>Montant (€)</label>
+                    <input type="number" step="0.01" id="editAmount" name="amount">
+                </div>
+                <div class="form__group">
+                    <label>Date</label>
+                    <input type="date" id="editDate" name="date">
+                </div>
+            </div>
             <div class="form__group">
-                <label>Objectif d'épargne (€)</label>
-                <input type="number" step="0.01" name="savings_goals" id="savingsGoalsInput" placeholder="0,00" required>
-            </div>
-
+                <label>Catégorie</label>
+                <select id="editCategory" name="category">
+                    <?php foreach ($allCategories as $category): ?>
+                        <option value="<?= $category->getId() ?>"><?= htmlspecialchars($category->getName()) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>  
             <div class="form__actions">
-                <button type="button" class="btn btn--ghost" id="cancelSalaryModal">Annuler</button>
+                <button type="button" class="btn btn--ghost" id="cancelEditExpeneModal">Annuler</button>
                 <button type="submit" class="btn btn--primary">Enregistrer</button>
             </div>
         </form>
     </div>
 </div>
 
+
 <script>
-    // --- Chart.js (données de démonstration) ---
-    const ctx = document.getElementById('expenseChart');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Alimentation','Transports','Logements','Santé','Soins et Hygiène','Loisirs et Sortie'],
-            datasets: [{
-                data: [125.40, 59, 49, 40, 33, 23.60],
-                backgroundColor: ['#C1654B','#7A8B7F','#C9A66B','#8E6C88','#6B8E9E','#B58B4C'],
-                borderColor: '#F4EFE6',
-                borderWidth: 4
-            }]
-        },
-        options: {
-            cutout: '62%',
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-
-    // --- Modal ---
-    const modal = document.getElementById('expenseModal');
-    document.getElementById('openAddModal').onclick = () => modal.classList.add('is-open');
-    document.getElementById('closeAddModal').onclick = () => modal.classList.remove('is-open');
-    document.getElementById('cancelModal').onclick = () => modal.classList.remove('is-open');
-
-    // --- Filtres chips ---
-    document.querySelectorAll('.chip').forEach(chip => {
-        chip.onclick = () => {
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
-            chip.classList.add('chip--active');
-        };
-    });
-
-    // --- Modal Salaire ---
-    const salaryModal = document.getElementById('salaryModal');
-    document.getElementById('openEditSalaryModal').onclick = () => salaryModal.classList.add('is-open');
-    document.getElementById('closeSalaryModal').onclick = () => salaryModal.classList.remove('is-open');
-    document.getElementById('cancelSalaryModal').onclick = () => salaryModal.classList.remove('is-open');
+    window.chartData = {
+        labels: <?= json_encode(array_map(fn($c) => $c->getName(), $allCategories)) ?>,
+        data: <?= json_encode(array_map(fn($c) => $totalExpensesByCategory[$c->getId()] ?? 0, $allCategories)) ?>,
+        colors: <?= json_encode(array_map(fn($c) => $c->getColor(), $allCategories)) ?>
+    };
 </script>
+<script src="./public/js/dashboard.js"></script>
+
 
 </body>
 </html>

@@ -50,11 +50,17 @@ class DashboardController {
         foreach($allCategories as $category){
             $totalExpensesByCategory[$category->getId()] = $this->dashboardRepo->getTotalExpenseByCategories($userId, $category->getId());
         }
+
+        // 7. Récupérer les dépenses par catégorie
+        $expensesByCategory = [];
+        foreach($allCategories as $category){
+            $expensesByCategory[$category->getId()] = $this->dashboardRepo->getAllExpensesByCategories($userId, $category->getId());
+        }
         
-        // 7. Récupérer la liste des dépenses (tableau du bas)
+        // 8. Récupérer la liste des dépenses (tableau du bas)
         $expenses = $this->dashboardRepo->getAllExpenses($userId);
         
-        // 8. Retourner les données
+        // 9. Retourner les données
         return [
             'user' => $user,
             'budget' => $budget,
@@ -64,8 +70,45 @@ class DashboardController {
             'totalSavings' => $totalSavings,
             'allCategories' => $allCategories,
             'totalExpensesByCategory' => $totalExpensesByCategory,
+            'expensesByCategory' => $expensesByCategory,
             'expenses' => $expenses
         ];
     }
 
+    public function updateExpense(): void {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->dashboardRepo->modifyExpense(
+            (int)$_POST['id'],
+            (float)$_POST['amount'],
+            $_POST['date'],
+            (int)$_POST['category'],
+            $_POST['libelle']
+        );
+    }
+    header('Location: /dashboard');
+    exit;
+    }
+
+    public function deleteExpense(): void {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->dashboardRepo->deleteExpense((int)$_POST['id']);
+        }
+        header('Location: /dashboard');
+        exit;
+    }
+
+    public function addExpense(): void {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = $_SESSION['user_id'] ?? 1; // adapte selon ta gestion de session
+            $this->dashboardRepo->addExpense(
+                (float)$_POST['amount'],
+                $_POST['date'],
+                (int)$_POST['category'],
+                $userId,
+                $_POST['libelle']
+            );
+        }
+        header('Location: /dashboard');
+        exit;
+    }
 }

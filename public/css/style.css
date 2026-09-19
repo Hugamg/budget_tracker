@@ -360,6 +360,36 @@ h3,
     border-bottom: none;
 }
 
+/* Scrollbar styling expenses */
+.cat-group {
+    display: block;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%;
+    scrollbar-width: auto;
+    scrollbar-color: var(--accent) var(--surface);
+}
+
+.cat-group::-webkit-scrollbar {
+    width: 12px;
+}
+
+.cat-group::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-left: 2px solid var(--ink);
+}
+
+.cat-group::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+}
+
+.cat-group::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-dark);
+}
+
+
 .cat-tag {
     width: 14px;
     height: 14px;
@@ -426,17 +456,24 @@ h3,
 
 .chip:hover {
     background: var(--bg);
+    transform: translate(1px, 1px);
 }
 
 .chip--active {
     background: var(--ink);
-    color: #fff;
 }
 
 /* ===== EXPENSE TABLE ===== */
 .expense-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.expense-table thead {
+    width: 100%;
+    display: table;
+    table-layout: fixed;
 }
 
 .expense-table thead th {
@@ -455,8 +492,27 @@ h3,
     font-size: .92rem;
 }
 
+.expense-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.expense-table tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #E5DFD3;
+    font-size: .92rem;
+}
+
 .expense-table tbody tr:hover {
     background: var(--bg);
+}
+
+.expense-table thead th.col-actions,
+.expense-table tbody td.col-actions {
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 30px;
 }
 
 .amount {
@@ -464,10 +520,6 @@ h3,
     font-weight: 600;
 }
 
-.col-actions {
-    text-align: right;
-    white-space: nowrap;
-}
 
 .pill {
     display: inline-block;
@@ -490,13 +542,21 @@ h3,
     transition: all .12s ease;
 }
 
-.icon-btn:hover {
+.icon-btn:not(.icon-btn--edit):not(.icon-btn--delete):hover {
     background: var(--bg);
 }
 
-.icon-btn--danger:hover {
-    background: var(--accent);
+.icon-btn.icon-btn--edit:hover {
+    border-color: var(--ink);
+
+    transform: translate(1px, 1px);
+}
+
+.icon-btn.icon-btn--delete:hover {
+    background: #C0392B;
+    border-color: var(--ink);
     color: #fff;
+    transform: translate(1px, 1px);
 }
 
 /* ===== MODAL ===== */

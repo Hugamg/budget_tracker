@@ -58,6 +58,21 @@ $dashboardRepo = new DashboardRepository($pdo);
 $userId = (int) ($_SESSION['user_id'] ?? 1); // Mettre sur 0 pour tester sans connexion
 
 // ─── 5. ROUTÂGE VERS LES CONTROLLEURS ─────────────────────────────────
+
+// ─── Gestion des actions POST (formulaires) ─────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new DashboardController($pdo);
+    
+    if ($folder === 'expense' && $page === 'add') {
+        $controller->addExpense();
+    } elseif ($folder === 'expense' && $page === 'update') {
+        $controller->updateExpense();
+    } elseif ($folder === 'expense' && $page === 'delete') {
+        $controller->deleteExpense();
+    }
+    // Les autres POST seront gérés par les contrôleurs respectifs
+}
+
 switch ($folder) {
 
     case 'dashboard':

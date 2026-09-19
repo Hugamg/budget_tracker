@@ -155,28 +155,29 @@ class DashboardRepository {
      * @return Action[]
      */
     public function getAllExpensesByCategories(int $userId, int $categoriesId): array {
-        $currentDate = new DateTimeImmutable('now');
-        $year = $currentDate->format('Y');
-        $month = $currentDate->format('m');
+    $currentDate = new DateTimeImmutable('now');
+    $year = $currentDate->format('Y');
+    $month = $currentDate->format('m');
 
-        $stmt = $this->db->prepare("SELECT id, amount, action_date, type, id_categories, id_users, libelle
-            FROM actions
-            WHERE id_users = :user_id
-            AND type = 'depense'
-            AND id_categories = :id_categories
-            AND YEAR(action_date) = :year
-            AND MONTH(action_date) = :month
-            ORDER BY action_date DESC");
+    $stmt = $this->db->prepare("SELECT a.id, a.amount, a.action_date, a.type, a.id_categories, c.nom AS category_name, a.id_users, a.libelle
+    FROM actions AS a
+    INNER JOIN categories AS c ON a.id_categories = c.id
+    WHERE a.id_users = :user_id
+    AND a.type = 'depense'
+    AND a.id_categories = :id_categories
+    AND YEAR(a.action_date) = :year
+    AND MONTH(a.action_date) = :month
+    ORDER BY a.action_date DESC");
 
-        $stmt->execute([
-            'user_id' => $userId,
-            'id_categories' => $categoriesId,
-            'year' => $year,
-            'month' => $month
-        ]);
+    $stmt->execute([
+        'user_id' => $userId,
+        'id_categories' => $categoriesId,
+        'year' => $year,
+        'month' => $month
+    ]);
 
-        return $this->mapRowsToActions($stmt->fetchAll(PDO::FETCH_ASSOC));
-    }
+    return $this->mapRowsToActions($stmt->fetchAll(PDO::FETCH_ASSOC));
+}
 
     /**
      * Retourne toutes les dépenses du mois, toutes catégories confondues
@@ -187,13 +188,15 @@ class DashboardRepository {
         $year = $currentDate->format('Y');
         $month = $currentDate->format('m');
 
-        $stmt = $this->db->prepare("SELECT id, amount, action_date, type, id_categories, id_users, libelle
-            FROM actions
-            WHERE id_users = :user_id
-            AND type = 'depense'
-            AND YEAR(action_date) = :year
-            AND MONTH(action_date) = :month
-            ORDER BY action_date DESC");
+        $stmt = $this->db->prepare("SELECT a.id, a.amount, a.action_date, a.type, c.nom AS category_name, c.color AS category_color, u.id as id_users, a.libelle
+        FROM actions AS a
+        INNER JOIN categories AS c ON a.id_categories = c.id
+        INNER JOIN users AS u ON a.id_users = u.id
+        WHERE a.id_users = :user_id
+        AND a.type = 'depense'
+        AND YEAR(a.action_date) = :year
+        AND MONTH(a.action_date) = :month
+        ORDER BY a.action_date DESC");
 
         $stmt->execute([
             'user_id' => $userId,
@@ -252,7 +255,7 @@ class DashboardRepository {
     }
 
     /**
-     * @param array $rows
+     * @param array $rows 
      * @return Action[]
      */
     private function mapRowsToActions(array $rows): array {
@@ -261,9 +264,11 @@ class DashboardRepository {
             (float) $row['amount'],
             $row['action_date'],
             $row['type'],
-            $row['id_categories'] !== null ? (int) $row['id_categories'] : null,
+            isset($row['id_categories']) ? (int) $row['id_categories'] : null,
             (int) $row['id_users'],
-            $row['libelle']
+            $row['libelle'],
+            $row['category_name'] ?? null,
+            $row['category_color'] ?? null
         ), $rows);
     }
 }
