@@ -6,25 +6,13 @@
 }
 
 :root {
-    /* Fond japandi : blanc cassé chaud */
     --bg: #F4EFE6;
     --surface: #FBF8F2;
     --ink: #1C1A17;
     --ink-soft: #6B655C;
     --line: #1C1A17;
-
-    /* Accent terracotta */
     --accent: #C1654B;
     --accent-dark: #A5503A;
-
-    /* Couleurs catégories (tons terreux) */
-    --c-alimentation: #C1654B;
-    --c-transports: #7A8B7F;
-    --c-logements: #C9A66B;
-    --c-sante: #8E6C88;
-    --c-soins: #6B8E9E;
-    --c-loisirs: #B58B4C;
-
     --radius: 4px;
     --shadow: 5px 5px 0 var(--ink);
 }
@@ -132,7 +120,7 @@ h3,
 .user-avatar {
     width: 42px;
     height: 42px;
-    background: var(--c-sante);
+    background: var(--accent);
     color: #fff;
     border: 2px solid var(--ink);
     border-radius: 50%;
@@ -210,15 +198,6 @@ h3,
     box-shadow: 3px 3px 0 var(--ink);
 }
 
-.btn--ghost {
-    background: transparent;
-    color: var(--ink);
-}
-
-.btn--ghost:hover {
-    background: var(--bg);
-}
-
 /* ===== STAT CARDS ===== */
 .stats-grid {
     display: grid;
@@ -269,17 +248,6 @@ h3,
     background: #FBF8F2;
 }
 
-.stat-card .btn {
-    margin-top: 14px;
-    width: 100%;
-    text-align: center;
-}
-
-.btn--small {
-    padding: 9px 14px;
-    font-size: .85rem;
-}
-
 .progress {
     margin-top: 12px;
     height: 10px;
@@ -309,7 +277,8 @@ h3,
     border-radius: var(--radius);
     padding: 22px;
     box-shadow: var(--shadow);
-    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
 }
 
 .panel__head {
@@ -317,6 +286,7 @@ h3,
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
+    flex-shrink: 0;
 }
 
 .panel__head h3 {
@@ -337,9 +307,17 @@ h3,
     border-radius: 20px;
 }
 
+/* ===== CHART ===== */
 .chart-wrap {
-    max-width: 320px;
-    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    width: 100%;
+}
+
+.chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* ===== BREAKDOWN ===== */
@@ -360,36 +338,6 @@ h3,
     border-bottom: none;
 }
 
-/* Scrollbar styling expenses */
-.cat-group {
-    display: block;
-    max-height: 400px;
-    overflow-y: auto;
-    width: 100%;
-    scrollbar-width: auto;
-    scrollbar-color: var(--accent) var(--surface);
-}
-
-.cat-group::-webkit-scrollbar {
-    width: 12px;
-}
-
-.cat-group::-webkit-scrollbar-track {
-    background: var(--surface);
-    border-left: 2px solid var(--ink);
-}
-
-.cat-group::-webkit-scrollbar-thumb {
-    background-color: var(--accent);
-    border: 2px solid var(--ink);
-    border-radius: 0;
-}
-
-.cat-group::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent-dark);
-}
-
-
 .cat-tag {
     width: 14px;
     height: 14px;
@@ -409,31 +357,6 @@ h3,
 .breakdown__amount {
     font-family: 'Space Grotesk';
     font-weight: 600;
-}
-
-/* Couleurs catégories */
-.cat--alimentation {
-    background: var(--c-alimentation);
-}
-
-.cat--transports {
-    background: var(--c-transports);
-}
-
-.cat--logements {
-    background: var(--c-logements);
-}
-
-.cat--sante {
-    background: var(--c-sante);
-}
-
-.cat--soins {
-    background: var(--c-soins);
-}
-
-.cat--loisirs {
-    background: var(--c-loisirs);
 }
 
 /* ===== FILTER CHIPS ===== */
@@ -461,6 +384,7 @@ h3,
 
 .chip--active {
     background: var(--ink);
+    color: #fff;
 }
 
 /* ===== EXPENSE TABLE ===== */
@@ -471,8 +395,8 @@ h3,
 }
 
 .expense-table thead {
-    width: 100%;
     display: table;
+    width: 100%;
     table-layout: fixed;
 }
 
@@ -486,10 +410,32 @@ h3,
     border-bottom: 2px solid var(--ink);
 }
 
-.expense-table tbody td {
-    padding: 14px 12px;
-    border-bottom: 1px solid #E5DFD3;
-    font-size: .92rem;
+.expense-table tbody {
+    display: block;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%;
+    scrollbar-width: auto;
+    scrollbar-color: var(--accent) var(--surface);
+}
+
+.expense-table tbody::-webkit-scrollbar {
+    width: 12px;
+}
+
+.expense-table tbody::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-left: 2px solid var(--ink);
+}
+
+.expense-table tbody::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+}
+
+.expense-table tbody::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-dark);
 }
 
 .expense-table tbody tr {
@@ -512,14 +458,12 @@ h3,
 .expense-table tbody td.col-actions {
     text-align: right;
     white-space: nowrap;
-    padding-right: 30px;
 }
 
 .amount {
     font-family: 'Space Grotesk';
     font-weight: 600;
 }
-
 
 .pill {
     display: inline-block;
@@ -529,6 +473,21 @@ h3,
     font-weight: 600;
     color: #fff;
     border: 2px solid var(--ink);
+}
+
+.badge-small {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+    background: #E4EAE4;
+    border: 2px solid var(--ink);
+    color: var(--ink);
+}
+
+.badge-small--danger {
+    background: #F3E5DF;
 }
 
 .icon-btn {
@@ -542,21 +501,13 @@ h3,
     transition: all .12s ease;
 }
 
-.icon-btn:not(.icon-btn--edit):not(.icon-btn--delete):hover {
+.icon-btn:hover {
     background: var(--bg);
 }
 
-.icon-btn.icon-btn--edit:hover {
-    border-color: var(--ink);
-
-    transform: translate(1px, 1px);
-}
-
-.icon-btn.icon-btn--delete:hover {
+.icon-btn--delete:hover {
     background: #C0392B;
-    border-color: var(--ink);
     color: #fff;
-    transform: translate(1px, 1px);
 }
 
 /* ===== MODAL ===== */

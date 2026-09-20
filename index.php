@@ -3,10 +3,12 @@
 //Repositories
 use App\Repositories\UserRepository;
 use App\Repositories\DashboardRepository;
+use App\Repositories\SavingsRepository;
 
 //Controllers
 use App\Controllers\DashboardController;
 use App\Controllers\AuthController;
+use App\Controllers\SavingsController;
 
 session_start();
 
@@ -22,6 +24,7 @@ $uri = trim($uri, '/'); // On enlève les slashes au début et à la fin pour av
 // Route par défaut
 if ($uri === '' || $uri === 'index.php') {
     $uri = 'dashboard';
+
 }
 
 $segments = explode('/', $uri); //explode('/', 'savings') donne un tableau avec un seul élément : ['savings'].
@@ -59,20 +62,6 @@ $userId = (int) ($_SESSION['user_id'] ?? 1); // Mettre sur 0 pour tester sans co
 
 // ─── 5. ROUTÂGE VERS LES CONTROLLEURS ─────────────────────────────────
 
-// ─── Gestion des actions POST (formulaires) ─────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller = new DashboardController($pdo);
-    
-    if ($folder === 'expense' && $page === 'add') {
-        $controller->addExpense();
-    } elseif ($folder === 'expense' && $page === 'update') {
-        $controller->updateExpense();
-    } elseif ($folder === 'expense' && $page === 'delete') {
-        $controller->deleteExpense();
-    }
-    // Les autres POST seront gérés par les contrôleurs respectifs
-}
-
 switch ($folder) {
 
     case 'dashboard':
@@ -82,13 +71,13 @@ switch ($folder) {
 
     // case 'analytics':
     //     $controller = new AnalyticsController($pdo);
-    //     $controller->index($userId);
+    //     $data =$controller->index($userId);
     //     break;
     
-    // case 'savings':
-    //     $controller = new SavingsController($pdo);
-    //     $controller->index($userId);
-    //     break;
+    case 'savings':
+        $controller = new SavingsController($pdo);
+        $data = $controller->index($userId); 
+        break;
 
     case 'auth':
         $controller = new AuthController($userRepo);

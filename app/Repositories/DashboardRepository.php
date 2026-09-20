@@ -155,29 +155,30 @@ class DashboardRepository {
      * @return Action[]
      */
     public function getAllExpensesByCategories(int $userId, int $categoriesId): array {
-    $currentDate = new DateTimeImmutable('now');
-    $year = $currentDate->format('Y');
-    $month = $currentDate->format('m');
+        $currentDate = new DateTimeImmutable('now');
+        $year = $currentDate->format('Y');
+        $month = $currentDate->format('m');
 
-    $stmt = $this->db->prepare("SELECT a.id, a.amount, a.action_date, a.type, a.id_categories, c.nom AS category_name, a.id_users, a.libelle
-    FROM actions AS a
-    INNER JOIN categories AS c ON a.id_categories = c.id
-    WHERE a.id_users = :user_id
-    AND a.type = 'depense'
-    AND a.id_categories = :id_categories
-    AND YEAR(a.action_date) = :year
-    AND MONTH(a.action_date) = :month
-    ORDER BY a.action_date DESC");
+        $stmt = $this->db->prepare("SELECT a.id, a.amount, a.action_date, a.type, a.id_categories, c.nom AS category_name, a.id_users, a.libelle
+        FROM actions AS a
+        INNER JOIN categories AS c ON a.id_categories = c.id
+        WHERE a.id_users = :user_id
+        AND a.type = 'depense'
+        AND c.fonction = 'DPS'
+        AND a.id_categories = :id_categories
+        AND YEAR(a.action_date) = :year
+        AND MONTH(a.action_date) = :month
+        ORDER BY a.action_date DESC");
 
-    $stmt->execute([
-        'user_id' => $userId,
-        'id_categories' => $categoriesId,
-        'year' => $year,
-        'month' => $month
-    ]);
+        $stmt->execute([
+            'user_id' => $userId,
+            'id_categories' => $categoriesId,
+            'year' => $year,
+            'month' => $month
+        ]);
 
-    return $this->mapRowsToActions($stmt->fetchAll(PDO::FETCH_ASSOC));
-}
+        return $this->mapRowsToActions($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
 
     /**
      * Retourne toutes les dépenses du mois, toutes catégories confondues
@@ -194,6 +195,7 @@ class DashboardRepository {
         INNER JOIN users AS u ON a.id_users = u.id
         WHERE a.id_users = :user_id
         AND a.type = 'depense'
+        AND c.fonction = 'DPS'
         AND YEAR(a.action_date) = :year
         AND MONTH(a.action_date) = :month
         ORDER BY a.action_date DESC");
@@ -243,8 +245,8 @@ class DashboardRepository {
     /**
      * @return Category[]
      */
-    public function getAllCategories(): array {
-        $stmt = $this->db->query("SELECT id, nom, color FROM categories ORDER BY nom ASC");
+    public function getAllCategoriesDepense(): array {
+        $stmt = $this->db->query("SELECT id, nom, color FROM categories WHERE fonction = 'DPS' ORDER BY nom ASC");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map(fn(array $row) => new Category(

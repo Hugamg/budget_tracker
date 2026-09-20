@@ -111,42 +111,32 @@
                     <h3>Par catégorie</h3>
                 </div>
                 <ul class="breakdown">
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--alimentation"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[0]) ? $allCategories[0]->getName() : 'Alimentation' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[1]) ? round(($totalExpensesByCategory[1] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[1]) ? number_format($totalExpensesByCategory[1], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--transports"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[1]) ? $allCategories[1]->getName() : 'Logements' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[3]) ? round(($totalExpensesByCategory[3] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[3]) ? number_format($totalExpensesByCategory[3], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--logements"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[2]) ? $allCategories[2]->getName() : 'Loisirs et Sorties' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[6]) ? round(($totalExpensesByCategory[6] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[6]) ? number_format($totalExpensesByCategory[6], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--sante"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[3]) ? $allCategories[3]->getName() : 'Santé' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[4]) ? round(($totalExpensesByCategory[4] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[4]) ? number_format($totalExpensesByCategory[4], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--soins"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[4]) ? $allCategories[4]->getName() : 'Soins et Hygiène' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[5]) ? round(($totalExpensesByCategory[5] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[5]) ? number_format($totalExpensesByCategory[5], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="cat-tag cat--loisirs"></span>
-                        <span class="breakdown__name"><?= isset($allCategories[5]) ? $allCategories[5]->getName() : 'Transports' ?></span>
-                        <span class="breakdown__pct"><?= isset($totalExpensesByCategory[2]) ? round(($totalExpensesByCategory[2] / $totalExpenses) * 100, 1) : 0 ?> %</span>
-                        <span class="breakdown__amount"><?= isset($totalExpensesByCategory[2]) ? number_format($totalExpensesByCategory[2], 2, ',', ' ') . " €" : "0,00 €" ?></span>
-                    </li>
+                    <?php
+                        $hasExpenses = false;
+                    ?>
+                    <?php if (isset($allCategories) && !empty($allCategories)): ?>
+                        <?php foreach ($allCategories as $category): ?>
+                            <?php
+                                $categoryAmount = $totalExpensesByCategory[$category->getId()] ?? 0;
+                                if ($categoryAmount <= 0) continue; // on saute les catégories sans dépense
+                                $hasExpenses = true;
+                                $percentage = isset($totalExpenses) && $totalExpenses > 0
+                                    ? round(($categoryAmount / $totalExpenses) * 100, 1)
+                                    : 0;
+                            ?>
+                            <li class="breakdown__item">
+                                <span class="cat-tag" style="background-color: <?= htmlspecialchars($category->getColor()) ?>;"></span>
+                                <span class="breakdown__name"><?= htmlspecialchars($category->getName()) ?></span>
+                                <span class="breakdown__pct"><?= $percentage ?> %</span>
+                                <span class="breakdown__amount"><?= number_format($categoryAmount, 2, ',', ' ') ?> €</span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if (!$hasExpenses): ?>
+                        <li class="breakdown__item">
+                            <span class="breakdown__name">Aucune dépense ce mois-ci</span>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
 
@@ -304,12 +294,9 @@
             <div class="form__group">
                 <label>Catégorie</label>
                 <select>
-                    <option value="alimentation">Alimentation</option>
-                    <option value="transports">Transports</option>
-                    <option value="sante">Santé</option>
-                    <option value="logements">Logements</option>
-                    <option value="soins">Soins et Hygiène</option>
-                    <option value="loisirs">Loisirs et Sortie</option>
+                    <?php foreach ($allCategories as $category): ?>
+                        <option value="<?= $category->getId() ?>"><?= htmlspecialchars($category->getName()) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="form__actions">
@@ -319,7 +306,6 @@
         </form>
     </div>
 </div>
-
 
 <!-- ===== MODAL : EDIT EXPENSE ===== -->                            
 <div class="modal-overlay" id="editExpenseModal">
@@ -361,16 +347,30 @@
     </div>
 </div>
 
-
 <script>
+    // On garde toutes les catégories pour le chart (même à 0),
+    // OU seulement celles avec dépenses > 0, selon ton préférence UX.
+    // Ici, comme demandé : uniquement celles avec des dépenses réelles.
+    <?php
+        $chartLabels = [];
+        $chartData = [];
+        $chartColors = [];
+        foreach ($allCategories as $c) {
+            $amount = $totalExpensesByCategory[$c->getId()] ?? 0;
+            if ($amount > 0) {
+                $chartLabels[] = $c->getName();
+                $chartData[] = $amount;
+                $chartColors[] = $c->getColor();
+            }
+        }
+    ?>
     window.chartData = {
-        labels: <?= json_encode(array_map(fn($c) => $c->getName(), $allCategories)) ?>,
-        data: <?= json_encode(array_map(fn($c) => $totalExpensesByCategory[$c->getId()] ?? 0, $allCategories)) ?>,
-        colors: <?= json_encode(array_map(fn($c) => $c->getColor(), $allCategories)) ?>
+        labels: <?= json_encode($chartLabels) ?>,
+        data: <?= json_encode($chartData) ?>,
+        colors: <?= json_encode($chartColors) ?>
     };
 </script>
 <script src="./public/js/dashboard.js"></script>
-
 
 </body>
 </html>

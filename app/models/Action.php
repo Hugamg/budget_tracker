@@ -18,7 +18,8 @@ class Action
         private int $idUsers,
         private string $libelle,
         private ?string $categoryName = null,
-        private ?string $categoryColor = null
+        private ?string $categoryColor = null,
+        private ?string $actionDateFormatted = null
     ) {}
 
     public function getId(): int
@@ -85,5 +86,13 @@ class Action
 
     public function getCategoryColor(): ?string {
         return $this->categoryColor;
+    }
+
+    public function getIdCategories(): ?int {
+        return $this->idCategories;
+    }
+    
+    public function getActionDateFormatted(): ?string {
+        return $this->actionDateFormatted;
     }
 }

@@ -43,7 +43,7 @@ class DashboardController {
         $totalSavings = $this->dashboardRepo->getTotalSavings($userId);
         
         // 5. Récupérer toutes les catégories
-        $allCategories = $this->dashboardRepo->getAllCategories();
+        $allCategories = $this->dashboardRepo->getAllCategoriesDepense();
         
         // 6. Pour chaque catégorie, calculer le total dépensé (pour le graphique)
         $totalExpensesByCategory = [];
