@@ -77,19 +77,18 @@ class SavingsController {
 private function getChartData(int $userId, array $categories): array {
     $start = new \DateTime();
     $start->modify('-5 months')->modify('first day of this month');
+    $startKey = $start->format('Y-m'); // ex: "2026-05"
 
     $labels = [];
     $monthKeys = [];
 
-    // Génère les 6 mois (ex: Jan, Fév, Mar, Avr, Mai, Juin)
     for ($i = 0; $i < 6; $i++) {
         $clone = clone $start;
         $clone->modify("+$i months");
-        $labels[] = $this->getFrenchMonthAbbrev($clone->format('n'));
+        $labels[] = $this->getFrenchMonthAbbrev((int)$clone->format('n'));
         $monthKeys[] = $clone->format('Y-m');
     }
 
-    // Récupère TOUTS les mouvements (versements ET retraits pour le cumul réel)
     $allDeposits = $this->savingsRepo->getAllSavingsByTypeSavingDeposits($userId);
     $allWithdrawals = $this->savingsRepo->getAllSavingsByWithdrawals($userId);
 
@@ -99,53 +98,57 @@ private function getChartData(int $userId, array $categories): array {
         $catId = $category->getId();
         $catColor = $category->getColor();
 
-        // Initialiser les 6 mois à 0
         $monthlyNet = array_fill(0, 6, 0);
+        $openingBalance = 0; // ✨ solde AVANT la fenêtre des 6 mois
 
-        // Ajouter les versements
+        // Versements
         foreach ($allDeposits as $deposit) {
             if (($deposit['id_categories'] ?? null) != $catId) continue;
-            
-            $depositMonth = substr($deposit['action_date'], 0, 7);
-            $monthIndex = array_search($depositMonth, $monthKeys);
-            
-            if ($monthIndex !== false) {
-                $monthlyNet[$monthIndex] += floatval($deposit['amount']);
+
+            $month = substr($deposit['action_date'], 0, 7);
+            $amount = floatval($deposit['amount']);
+
+            if ($month < $startKey) {
+                $openingBalance += $amount;          // ✨ avant la fenêtre
+            } else {
+                $idx = array_search($month, $monthKeys);
+                if ($idx !== false) $monthlyNet[$idx] += $amount;
             }
         }
 
-        // Soustraire les retraits
+        // Retraits
         foreach ($allWithdrawals as $withdrawal) {
             if (($withdrawal['id_categories'] ?? null) != $catId) continue;
-            
-            $withdrawalMonth = substr($withdrawal['action_date'], 0, 7);
-            $monthIndex = array_search($withdrawalMonth, $monthKeys);
-            
-            if ($monthIndex !== false) {
-                $monthlyNet[$monthIndex] -= floatval($withdrawal['amount']);
+
+            $month = substr($withdrawal['action_date'], 0, 7);
+            $amount = floatval($withdrawal['amount']);
+
+            if ($month < $startKey) {
+                $openingBalance -= $amount;          // ✨ avant la fenêtre
+            } else {
+                $idx = array_search($month, $monthKeys);
+                if ($idx !== false) $monthlyNet[$idx] -= $amount;
             }
         }
 
-        // >>> TRANSFORMATION CRUCIALE : cumul mois par mois <<<
+        // Cumul à partir du solde d'ouverture
         $cumulativeData = [];
-        $runningTotal = 0;
+        $runningTotal = $openingBalance; // ✨ plus de départ à 0
         foreach ($monthlyNet as $monthAmount) {
             $runningTotal += $monthAmount;
-            // Si négatif, on met à 0 (pas de dette dans l'épargne affichée)
-            $runningTotal = max(0, $runningTotal);
-            $cumulativeData[] = $runningTotal;
+            $cumulativeData[] = round($runningTotal, 2); // ✨ plus de max(0, ...)
         }
 
-        $hasData = end($cumulativeData) > 0; // Y a-t-il un solde final ?
+        $hasData = end($cumulativeData) > 0;
 
         $datasets[] = [
             'label' => $category->getName(),
-            'data' => $cumulativeData,        // <<< DONNÉES CUMULÉES
+            'data' => $cumulativeData,
             'borderColor' => $catColor,
-            'backgroundColor' => $catColor . '40',  // légèrement plus opaque
+            'backgroundColor' => $catColor . '40',
             'borderWidth' => 3,
-            'tension' => 0.3,                 // courbe plus douce
-            'fill' => true,                   // <<< REMPLISSAGE SOUS LA COURBE
+            'tension' => 0.3,
+            'fill' => true,
             'pointRadius' => 4,
             'pointBackgroundColor' => $catColor,
             'pointBorderColor' => '#1C1A17',
