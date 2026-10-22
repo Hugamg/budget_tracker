@@ -169,41 +169,77 @@ class SavingsRepository {
 
 
     /**
- * Récupère le solde cumulé mois par mois pour chaque catégorie d'épargne
- * Retourne: [categoryId => ['YYYY-MM' => soldeNet, ...], ...]
- */
-public function getMonthlyCumulativeSavingsByCategory(int $userId): array {
-    // Récupère tous les mouvements (versements + retraits) des 6 derniers mois
-    $stmt = $this->db->prepare("
-        SELECT 
-            a.id_categories,
-            DATE_FORMAT(a.action_date, '%Y-%m') AS month_key,
-            SUM(CASE 
-                WHEN a.type = 'epargne_versement' THEN a.amount 
-                WHEN a.type = 'epargne_retrait' THEN -a.amount 
-                ELSE 0 
-            END) AS net_amount
-        FROM actions a
-        WHERE a.id_users = :user_id
-        AND a.type IN ('epargne_versement', 'epargne_retrait')
-        AND a.action_date >= DATE_FORMAT(NOW() - INTERVAL 5 MONTH, '%Y-%m-01')
-        GROUP BY a.id_categories, DATE_FORMAT(a.action_date, '%Y-%m')
-        ORDER BY month_key ASC
-    ");
-    
-    $stmt->execute(['user_id' => $userId]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Réorganiser: [catId => ['2026-04' => 150, '2026-05' => 200, ...]]
-    $result = [];
-    foreach ($rows as $row) {
-        $catId = (int) $row['id_categories'];
-        $monthKey = $row['month_key'];
-        $amount = (float) $row['net_amount'];
+     * Récupère le solde cumulé mois par mois pour chaque catégorie d'épargne
+     * Retourne: [categoryId => ['YYYY-MM' => soldeNet, ...], ...]
+     */
+    public function getMonthlyCumulativeSavingsByCategory(int $userId): array {
+        // Récupère tous les mouvements (versements + retraits) des 6 derniers mois
+        $stmt = $this->db->prepare("
+            SELECT 
+                a.id_categories,
+                DATE_FORMAT(a.action_date, '%Y-%m') AS month_key,
+                SUM(CASE 
+                    WHEN a.type = 'epargne_versement' THEN a.amount 
+                    WHEN a.type = 'epargne_retrait' THEN -a.amount 
+                    ELSE 0 
+                END) AS net_amount
+            FROM actions a
+            WHERE a.id_users = :user_id
+            AND a.type IN ('epargne_versement', 'epargne_retrait')
+            AND a.action_date >= DATE_FORMAT(NOW() - INTERVAL 5 MONTH, '%Y-%m-01')
+            GROUP BY a.id_categories, DATE_FORMAT(a.action_date, '%Y-%m')
+            ORDER BY month_key ASC
+        ");
         
-        $result[$catId][$monthKey] = $amount;
+        $stmt->execute(['user_id' => $userId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Réorganiser: [catId => ['2026-04' => 150, '2026-05' => 200, ...]]
+        $result = [];
+        foreach ($rows as $row) {
+            $catId = (int) $row['id_categories'];
+            $monthKey = $row['month_key'];
+            $amount = (float) $row['net_amount'];
+            
+            $result[$catId][$monthKey] = $amount;
+        }
+        
+        return $result;
     }
-    
-    return $result;
-}
+
+    public function addSavings(
+        int $userId,
+        float $amount,
+        string $date,
+        string $type,
+        int $categoryId
+    ): bool {
+        if (!in_array($type, ['epargne_versement', 'epargne_retrait'], true)) {
+            throw new \InvalidArgumentException('Type de mouvement invalide.');
+        }
+
+        $stmt = $this->db->prepare("
+            INSERT INTO actions (
+                amount,
+                action_date,
+                id_categories,
+                id_users,
+                type
+            ) VALUES (
+                :amount,
+                :action_date,
+                :category_id,
+                :user_id,
+                :type
+            )
+        ");
+
+        return $stmt->execute([
+            'amount' => $amount,
+            'action_date' => $date,
+            'category_id' => $categoryId,
+            'user_id' => $userId,
+            'type' => $type,
+        ]);
+    }
 }

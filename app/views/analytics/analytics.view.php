@@ -1,3 +1,33 @@
+<?php
+// Helpers d'affichage
+function money($v): string {
+    return number_format((float) $v, 2, ',', ' ') . ' €';
+}
+function e($s): string {
+    return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
+}
+
+// Sécurisation des variables
+$start          = isset($start)          ? $start          : date('Y-m-01');
+$end            = isset($end)            ? $end            : date('Y-m-d');
+$total          = isset($total)          ? $total          : 0;
+$nbMonths       = isset($nbMonths)       ? $nbMonths       : 0;
+$averageMonthly = isset($averageMonthly) ? $averageMonthly : 0;
+$topCategory    = isset($topCategory)    ? $topCategory    : null;
+$highestExpense = isset($highestExpense) ? $highestExpense : null;
+$byCategory     = isset($byCategory)     ? $byCategory     : [];
+$top5           = isset($top5)           ? $top5           : [];
+$trendLabels    = isset($trendLabels)    ? $trendLabels    : [];
+$trendData      = isset($trendData)      ? $trendData      : [];
+
+// Libellé de période pour les badges
+$periodLabel = '';
+if (!empty($trendLabels)) {
+    $periodLabel = count($trendLabels) > 1
+        ? reset($trendLabels) . ' - ' . end($trendLabels)
+        : $trendLabels[0];
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,9 +43,6 @@
 
 <div class="app-layout">
 
-
-
-    <!-- ===== MAIN ===== -->
     <main class="main">
 
         <!-- Topbar -->
@@ -26,52 +53,67 @@
             </div>
         </header>
 
-        <!-- ===== FILTRES PÉRIODE ===== -->
-        <section class="filter-section">
-            <div class="filter-group">
-                <label>Période</label>
-                <div class="date-range">
-                    <input type="date" value="2026-05-01">
-                    <span class="date-separator">—</span>
-                    <input type="date" value="2026-07-09">
+        <!-- Filtre période -->
+        <form method="GET" action="/analytics">
+            <section class="filter-section">
+                <div class="filter-group">
+                    <label for="start">Période</label>
+                    <div class="date-range">
+                        <input id="start" type="date" name="start" value="<?= e($start) ?>">
+                        <span class="date-separator">—</span>
+                        <input id="end" type="date" name="end" value="<?= e($end) ?>">
+                    </div>
                 </div>
-            </div>
-            <button class="btn btn--primary">Appliquer</button>
-        </section>
+                <button type="submit" class="btn btn--primary">Appliquer</button>
+            </section>
+        </form>
 
-        <!-- ===== STATS COMPARATIVES ===== -->
+        <!-- Cartes de stats -->
         <section class="stats-grid">
             <div class="stat-card">
                 <p class="stat-card__label">Total dépensé (période)</p>
-                <p class="stat-card__value">990,00 €</p>
-                <p class="stat-card__hint">3 mois analysés</p>
+                <p class="stat-card__value"><?= money($total) ?></p>
+                <p class="stat-card__hint"><?= (int) $nbMonths ?> mois analysé<?= $nbMonths > 1 ? 's' : '' ?></p>
             </div>
 
             <div class="stat-card">
                 <p class="stat-card__label">Dépense moyenne</p>
-                <p class="stat-card__value">330,00 €</p>
+                <p class="stat-card__value"><?= money($averageMonthly) ?></p>
                 <p class="stat-card__hint">Par mois</p>
             </div>
 
             <div class="stat-card">
                 <p class="stat-card__label">Catégorie top 1</p>
-                <p class="stat-card__value">Alimentation</p>
-                <p class="stat-card__hint">376,00 € (38 %)</p>
+                <?php if (isset($topCategory) && !empty($topCategory)): ?>
+                    <p class="stat-card__value"><?= e(isset($topCategory['name']) ? $topCategory['name'] : '—') ?></p>
+                    <p class="stat-card__hint">
+                        <?= money(isset($topCategory['total']) ? $topCategory['total'] : 0) ?>
+                        (<?= isset($topCategory['percent']) ? $topCategory['percent'] : 0 ?> %)
+                    </p>
+                <?php else: ?>
+                    <p class="stat-card__value">—</p>
+                    <p class="stat-card__hint">Aucune dépense</p>
+                <?php endif; ?>
             </div>
 
             <div class="stat-card">
                 <p class="stat-card__label">Dépense la plus élevée</p>
-                <p class="stat-card__value">54,20 €</p>
-                <p class="stat-card__hint">Courses Carrefour</p>
+                <?php if (isset($highestExpense) && !empty($highestExpense)): ?>
+                    <p class="stat-card__value"><?= money(isset($highestExpense['amount']) ? $highestExpense['amount'] : 0) ?></p>
+                    <p class="stat-card__hint"><?= e(isset($highestExpense['label']) ? $highestExpense['label'] : '') ?></p>
+                <?php else: ?>
+                    <p class="stat-card__value">—</p>
+                    <p class="stat-card__hint">Aucune dépense</p>
+                <?php endif; ?>
             </div>
         </section>
 
-        <!-- ===== GRAPHIQUES ===== -->
+        <!-- Graphique catégories + Top 5 -->
         <section class="content-grid">
             <div class="panel">
                 <div class="panel__head">
                     <h3>Dépenses par catégorie</h3>
-                    <span class="badge">Mai - Juillet</span>
+                    <span class="badge"><?= e($periodLabel) ?></span>
                 </div>
                 <div class="chart-wrap chart-wrap--tall">
                     <canvas id="categoryChart"></canvas>
@@ -83,47 +125,29 @@
                     <h3>Top 5 des dépenses</h3>
                 </div>
                 <ul class="breakdown">
-                    <li class="breakdown__item">
-                        <span class="rank">1</span>
-                        <span class="breakdown__name">Courses Carrefour</span>
-                        <span class="breakdown__amount">54,20 €</span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="rank">2</span>
-                        <span class="breakdown__name">Ticket de métro</span>
-                        <span class="breakdown__amount">16,90 €</span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="rank">3</span>
-                        <span class="breakdown__name">Pharmacie</span>
-                        <span class="breakdown__amount">23,00 €</span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="rank">4</span>
-                        <span class="breakdown__name">Cinéma</span>
-                        <span class="breakdown__amount">12,50 €</span>
-                    </li>
-                    <li class="breakdown__item">
-                        <span class="rank">5</span>
-                        <span class="breakdown__name">Gel douche & shampoing</span>
-                        <span class="breakdown__amount">18,30 €</span>
-                    </li>
+                    <?php foreach ($top5 as $i => $expense): ?>
+                        <li class="breakdown__item">
+                            <span class="rank"><?= $i + 1 ?></span>
+                            <span class="breakdown__name"><?= e(isset($expense['label']) ? $expense['label'] : '') ?></span>
+                            <span class="breakdown__amount"><?= money(isset($expense['amount']) ? $expense['amount'] : 0) ?></span>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
         </section>
 
-        <!-- ===== TENDANCE MENSUELLE ===== -->
+        <!-- Tendance mensuelle -->
         <section class="panel">
             <div class="panel__head">
                 <h3>Tendance mensuelle</h3>
-                <span class="badge">Dernier trimestre</span>
+                <span class="badge"><?= e($periodLabel) ?></span>
             </div>
             <div class="chart-wrap">
                 <canvas id="trendChart"></canvas>
             </div>
         </section>
 
-        <!-- ===== TABLEAU DÉTAILLÉ ===== -->
+        <!-- Tableau détaillé -->
         <section class="panel">
             <div class="panel__head">
                 <h3>Détail par catégorie</h3>
@@ -140,48 +164,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><span class="pill cat--alimentation">Alimentation</span></td>
-                        <td>12</td>
-                        <td class="amount">376,00 €</td>
-                        <td>31,33 €</td>
-                        <td>38 %</td>
-                    </tr>
-                    <tr>
-                        <td><span class="pill cat--transports">Transports</span></td>
-                        <td>8</td>
-                        <td class="amount">178,00 €</td>
-                        <td>22,25 €</td>
-                        <td>18 %</td>
-                    </tr>
-                    <tr>
-                        <td><span class="pill cat--logements">Logements</span></td>
-                        <td>3</td>
-                        <td class="amount">147,00 €</td>
-                        <td>49,00 €</td>
-                        <td>15 %</td>
-                    </tr>
-                    <tr>
-                        <td><span class="pill cat--sante">Santé</span></td>
-                        <td>4</td>
-                        <td class="amount">119,00 €</td>
-                        <td>29,75 €</td>
-                        <td>12 %</td>
-                    </tr>
-                    <tr>
-                        <td><span class="pill cat--soins">Soins et Hygiène</span></td>
-                        <td>5</td>
-                        <td class="amount">99,00 €</td>
-                        <td>19,80 €</td>
-                        <td>10 %</td>
-                    </tr>
-                    <tr>
-                        <td><span class="pill cat--loisirs">Loisirs et Sortie</span></td>
-                        <td>3</td>
-                        <td class="amount">71,00 €</td>
-                        <td>23,67 €</td>
-                        <td>7 %</td>
-                    </tr>
+                    <?php foreach ($byCategory as $cat): ?>
+                        <tr>
+                            <td>
+                                <span class="pill" style="background: <?= e(isset($cat['color']) ? $cat['color'] : '#999') ?>">
+                                    <?= e(isset($cat['name']) ? $cat['name'] : '') ?>
+                                </span>
+                            </td>
+                            <td><?= isset($cat['nb_transactions']) ? (int) $cat['nb_transactions'] : 0 ?></td>
+                            <td class="amount"><?= money(isset($cat['total']) ? $cat['total'] : 0) ?></td>
+                            <td><?= money(isset($cat['average']) ? $cat['average'] : 0) ?></td>
+                            <td><?= isset($cat['percent']) ? $cat['percent'] : 0 ?> %</td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </section>
@@ -190,16 +185,16 @@
 </div>
 
 <script>
-    // --- Chart.js Catégories ---
+    // Graphique catégories
     const categoryCtx = document.getElementById('categoryChart');
     new Chart(categoryCtx, {
         type: 'bar',
         data: {
-            labels: ['Alimentation', 'Transports', 'Logements', 'Santé', 'Soins et Hygiène', 'Loisirs'],
+            labels: <?= json_encode(array_column($byCategory, 'name')) ?>,
             datasets: [{
                 label: 'Montant (€)',
-                data: [376, 178, 147, 119, 99, 71],
-                backgroundColor: ['#C1654B', '#7A8B7F', '#C9A66B', '#8E6C88', '#6B8E9E', '#B58B4C'],
+                data: <?= json_encode(array_map('floatval', array_column($byCategory, 'total'))) ?>,
+                backgroundColor: <?= json_encode(array_column($byCategory, 'color')) ?>,
                 borderColor: '#1C1A17',
                 borderWidth: 2
             }]
@@ -219,15 +214,15 @@
         }
     });
 
-    // --- Chart.js Tendance ---
+    // Graphique tendance
     const trendCtx = document.getElementById('trendChart');
     new Chart(trendCtx, {
         type: 'line',
         data: {
-            labels: ['Mai', 'Juin', 'Juillet'],
+            labels: <?= json_encode($trendLabels) ?>,
             datasets: [{
                 label: 'Dépenses mensuelles',
-                data: [330, 330, 330],
+                data: <?= json_encode($trendData) ?>,
                 borderColor: '#C1654B',
                 backgroundColor: 'rgba(193, 101, 75, 0.1)',
                 borderWidth: 3,

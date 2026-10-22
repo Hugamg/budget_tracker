@@ -9,12 +9,12 @@ use App\Repositories\SavingsRepository;
 use App\Controllers\DashboardController;
 use App\Controllers\AuthController;
 use App\Controllers\SavingsController;
+use App\Controllers\AnalyseController;
 
 session_start();
 
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config/database.php';
-require __DIR__ . '/app/Repositories/DashboardRepository.php';
 
 
 // ─── 1. PARSING DE L'URL ─────────────────────────────────────
@@ -45,17 +45,18 @@ if (!in_array($page, $allowed_pages)) {
 }
 
 // ─── 3. VÉRIFICATION FICHIER ─────────────────────────────────
-$view_file = __DIR__ . '/app/views/' . $folder . '/' . $page . '.view.php';
+$view_file = __DIR__ . '/app/Views/' . $folder . '/' . $page . '.view.php';
 
 if (!file_exists($view_file)) {
     $folder = 'dashboard';
     $page   = 'dashboard';
-    $view_file = __DIR__ . '/app/views/dashboard/dashboard.view.php';
+    $view_file = __DIR__ . '/app/Views/dashboard/dashboard.view.php';
 }
 
 // ─── 4. INSTANCIATION DES REPOS ─────────────────────────────────
 $userRepo = new UserRepository($pdo);   
 $dashboardRepo = new DashboardRepository($pdo);
+
 
 // ─── Récupération de l'ID utilisateur connecté (mis en session par AuthController::login)
 $userId = (int) ($_SESSION['user_id'] ?? 1); // Mettre sur 0 pour tester sans connexion
@@ -66,17 +67,31 @@ switch ($folder) {
 
     case 'dashboard':
         $controller = new DashboardController($pdo);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $controller->handlePost($userId);
+        }
+
         $data = $controller->index($userId);
         break;
 
-    // case 'analytics':
-    //     $controller = new AnalyticsController($pdo);
-    //     $data =$controller->index($userId);
-    //     break;
+    case 'analytics':
+        $controller = new AnalyseController($pdo);
+        $data = $controller->index(
+            $userId,
+            $_GET['start'] ?? null,
+            $_GET['end'] ?? null
+        );
+        break;
     
     case 'savings':
         $controller = new SavingsController($pdo);
-        $data = $controller->index($userId); 
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $controller->handlePost($userId);
+        }
+
+        $data = $controller->index($userId);
         break;
 
     case 'auth':
@@ -101,5 +116,5 @@ if (isset($data)) {
 }
 
 // ─── 4. AFFICHAGE ────────────────────────────────────────────
-require __DIR__ . '/app/views/nav/nav.php';
+require __DIR__ . '/app/Views/nav/nav.php';
 require $view_file;

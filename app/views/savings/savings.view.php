@@ -22,7 +22,7 @@
                 <p class="topbar__label">Gestion des épargnes</p>
                 <h2 class="topbar__title">Suivi de votre épargne</h2>
             </div>
-            <button class="btn btn--primary" id="openSavingsModal">+ Ajouter une épargne</button>
+            <button class="btn btn--primary" id="openSavingsModal" type="button">+ Ajouter une épargne</button>
         </header>
 
         <!-- ===== ÉPARGNE GLOBALE ===== -->
@@ -245,41 +245,95 @@
 </div>
 
 <!-- ===== MODAL : AJOUTER ÉPARGNE ===== -->
-<div class="modal-overlay" id="savingsModal">
+<div class="modal-overlay <?= !empty($flash) ? 'is-open' : '' ?>" id="savingsModal">
     <div class="modal">
         <div class="modal__head">
             <h3>Enregistrer une épargne</h3>
-            <button class="icon-btn" id="closeSavingsModal">✕</button>
+            <button
+                class="icon-btn"
+                id="closeSavingsModal"
+                type="button"
+                aria-label="Fermer"
+            >
+                ✕
+            </button>
         </div>
-        <form class="form" method="POST" action="/savings/add">
-            <div class="form__group">
-                <label>Montant (€)</label>
-                <input type="number" step="0.01" name="amount" placeholder="0,00" required>
+
+        <?php if (!empty($flash['message'])): ?>
+            <div
+                class="form-message <?= !empty($flash['success'])
+                    ? 'form-message--success'
+                    : 'form-message--error' ?>"
+                role="status"
+            >
+                <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8') ?>
             </div>
+        <?php endif; ?>
+
+        <form class="form" method="POST" action="/savings">
+            <input type="hidden" name="action" value="add_saving">
+
+            <div class="form__group">
+                <label for="savingsAmount">Montant (€)</label>
+                <input
+                    type="number"
+                    id="savingsAmount"
+                    name="amount"
+                    step="0.01"
+                    min="0.01"
+                    placeholder="0,00"
+                    required
+                >
+            </div>
+
             <div class="form__row">
                 <div class="form__group">
-                    <label>Date</label>
-                    <input type="date" name="date" required>
+                    <label for="savingsDate">Date</label>
+                    <input
+                        type="date"
+                        id="savingsDate"
+                        name="date"
+                        value="<?= date('Y-m-d') ?>"
+                        required
+                    >
                 </div>
+
                 <div class="form__group">
-                    <label>Type</label>
-                    <select name="type" required>
+                    <label for="savingsType">Type</label>
+                    <select id="savingsType" name="type" required>
                         <option value="epargne_versement">Versement</option>
                         <option value="epargne_retrait">Retrait</option>
                     </select>
                 </div>
             </div>
+
             <div class="form__group">
-                <label>Objectif</label>
-                <select name="category" required>
+                <label for="savingsCategory">Objectif</label>
+                <select id="savingsCategory" name="category" required>
                     <?php foreach ($allCategories as $category): ?>
-                        <option value="<?= $category->getId() ?>"><?= htmlspecialchars($category->getName()) ?></option>
+                        <option value="<?= (int) $category->getId() ?>">
+                            <?= htmlspecialchars(
+                                $category->getName(),
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
+
             <div class="form__actions">
-                <button type="button" class="btn btn--ghost" id="cancelSavingsModal">Annuler</button>
-                <button type="submit" class="btn btn--primary">Enregistrer</button>
+                <button
+                    type="button"
+                    class="btn btn--ghost"
+                    id="cancelSavingsModal"
+                >
+                    Annuler
+                </button>
+
+                <button type="submit" class="btn btn--primary">
+                    Enregistrer
+                </button>
             </div>
         </form>
     </div>

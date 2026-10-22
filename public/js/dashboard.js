@@ -113,7 +113,6 @@ document.getElementById('editExpenseForm').addEventListener('submit', (e) => {
 // Soumission du formulaire d'ajout
 // ============================================
 document.querySelector('#addExpenseModal form').addEventListener('submit', (e) => {
-    e.preventDefault();
     // À implémenter selon tes besoins
     console.log('Add expense form submitted');
 });
